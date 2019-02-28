@@ -2886,6 +2886,10 @@ class RawVolumeClient(VsphereClient):
 
     def delete_file(self, datacenter_name, datastorepath):
         dc = self._get_obj_by_name(vim.Datacenter, datacenter_name)
+        if not dc:
+            raise NonRecoverableError(
+                "Unable to get datacenter: {datacenter}"
+                .format(datacenter=repr(datacenter_name)))
         self.si.content.fileManager.DeleteFile(datastorepath, dc.obj)
 
     def upload_file(self, datacenter_name, allowed_datastores,

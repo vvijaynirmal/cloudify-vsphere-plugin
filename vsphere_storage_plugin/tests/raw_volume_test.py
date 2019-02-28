@@ -17,6 +17,7 @@ import unittest
 from mock import Mock, patch
 
 from cloudify.state import current_ctx
+from cloudify.exceptions import NonRecoverableError
 
 import vsphere_plugin_common
 
@@ -40,6 +41,10 @@ class RawVolumeTest(unittest.TestCase):
             vsphere_plugin_common.vim.Datacenter, "datacenter")
         client.si.content.fileManager.DeleteFile.assert_called_once_with(
             '[datastore] filename', datacenter.obj)
+        # no such datacenter
+        client._get_obj_by_name = Mock(return_value=None)
+        with self.assertRaises(NonRecoverableError):
+            client.delete_file("datacenter", "[datastore] filename")
 
     def test_upload_file(self):
         client = vsphere_plugin_common.RawVolumeClient()
